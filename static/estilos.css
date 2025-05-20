@@ -1,0 +1,87 @@
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background-color: #ebfeee;
+  color: #096c6c;
+  padding: 20px;
+  max-width: 700px;
+  margin: 30px auto;
+  border-radius: 10px;
+  background: #ebfeee;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+h2 {
+  margin-bottom: 15px;
+  color: #096c6c;
+  text-align: center;
+}
+
+form {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+input[type="file"] {
+  margin-bottom: 10px;
+}
+
+button {
+  background-color: #429e96;
+  color: white;
+  border: none;
+  padding: 10px 25px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #096c6c;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 30px 0;
+}
+
+ul {
+  list-style: none;
+  padding-left: 0;
+  text-align: center;
+}
+
+ul li {
+  margin: 10px 0;
+}
+
+ul li a {
+  text-decoration: none;
+  color: #096c6c;
+  font-weight: 500;
+}
+
+ul li a:hover {
+  text-decoration: underline;
+}
+
+a[href="{{ url_for('logout') }}"] {
+  display: block;
+  text-align: center;
+  margin-top: 40px;
+  color: #096c6c;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+a[href="{{ url_for('logout') }}"]:hover {
+  text-decoration: underline;
+}
