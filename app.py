@@ -123,8 +123,3 @@ def logout():
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))  # Render usa esta variable
     app.run(host='0.0.0.0', port=port, debug=True)
-
-if __name__ == '__main__':
-    import os
-    port = int(os.environ.get('PORT', 5000))  # toma el puerto asignado por Render o usa 5000 si no existe
-    app.run(host='0.0.0.0', port=port, debug=True)
