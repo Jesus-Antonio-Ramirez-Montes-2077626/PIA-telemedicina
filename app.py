@@ -10,7 +10,7 @@ UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-ALLOWED_EXTENSIONS = {'.zip','.dcm'}
+ALLOWED_EXTENSIONS = {'.zip', '.dcm'}
 
 def allowed_file(filename):
     return os.path.splitext(filename)[1].lower() in ALLOWED_EXTENSIONS
@@ -23,6 +23,11 @@ def cargar_usuarios():
         for fila in lector:
             usuarios.append(fila)  # [nombre, correo, usuario, contraseña]
     return usuarios
+
+# ✅ NUEVA RUTA PRINCIPAL DE BIENVENIDA
+@app.route('/')
+def inicio():
+    return render_template('inicio.html')  # NUEVO TEMPLATE
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -44,10 +49,10 @@ def login():
 
         session['usuario'] = encontrado[2]
         session['nombre'] = encontrado[0]
-        return redirect(url_for('index'))
+        return redirect(url_for('index'))  # va al panel (ruta renombrada más abajo)
 
     return render_template('login.html')
-    
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -56,13 +61,11 @@ def register():
         usuario = request.form['usuario'].strip()
         contrasena = request.form['contrasena'].strip()
 
-        # Validar si ya existe
         usuarios = cargar_usuarios()
         for u in usuarios:
             if correo == u[1] or usuario == u[2]:
                 return render_template('register.html', error="Usuario o correo ya registrado.")
 
-        # Guardar nuevo usuario
         with open('Login_and_register.csv', 'a', newline='', encoding='utf-8') as csvfile:
             escritor = csv.writer(csvfile)
             escritor.writerow([nombre, correo, usuario, contrasena])
@@ -70,15 +73,14 @@ def register():
         return redirect(url_for('login'))
 
     return render_template('register.html')
-    
-@app.route('/')
+
+# ✅ RUTA CAMBIADA de '/' a '/panel' para evitar conflicto con la página principal
+@app.route('/panel')
 def index():
     if 'usuario' not in session:
         return redirect(url_for('login'))
 
-    archivos = [f for f in os.listdir(app.config['UPLOAD_FOLDER'])
-                if allowed_file(f)]
-
+    archivos = [f for f in os.listdir(app.config['UPLOAD_FOLDER']) if allowed_file(f)]
     return render_template('index.html', nombre=session.get('nombre'), archivos=archivos)
 
 @app.route('/upload', methods=['POST'])
@@ -94,10 +96,10 @@ def upload_file():
         return 'Nombre de archivo vacío'
 
     if not allowed_file(file.filename):
-        return 'Solo se permiten archivos .zip'
+        return 'Solo se permiten archivos .zip o .dcm'
 
     file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
-    return f'Archivo {file.filename} subido correctamente.<br><a href="/">Volver</a>'
+    return f'Archivo {file.filename} subido correctamente.<br><a href="/panel">Volver</a>'  # actualizado
 
 @app.route('/download')
 def download_file():
@@ -116,7 +118,11 @@ def download_file():
 @app.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for('login'))
+    return redirect(url_for('inicio'))  # volver a la pantalla principal
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))  # Render usa esta variable
+    app.run(host='0.0.0.0', port=port, debug=True)
 
 if __name__ == '__main__':
     import os
