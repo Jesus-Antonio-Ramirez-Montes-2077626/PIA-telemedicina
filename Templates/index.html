@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Panel de Archivos DICOM</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
+</head>
+<body>
+  <h1>Descarga archivos DICOM</h1>
+  <h2>Hola, {{ nombre }}. Subir archivo (.zip únicamente)</h2>
+  <form method="POST" action="/upload" enctype="multipart/form-data">
+    <input type="file" name="archivo" accept=".zip" required />
+    <button type="submit">Subir</button>
+  </form>
+
+  <hr>
+
+  <h2>Archivos disponibles para descargar</h2>
+  <ul>
+    {% for archivo in archivos %}
+      <li><a href="{{ url_for('download_file') }}?filename={{ archivo }}">{{ archivo }}</a></li>
+    {% endfor %}
+  </ul>
+
+  <br><a href="{{ url_for('logout') }}">Cerrar sesión</a>
+</body>
+</html>
