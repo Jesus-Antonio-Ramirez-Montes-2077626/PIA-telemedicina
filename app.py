@@ -47,7 +47,30 @@ def login():
         return redirect(url_for('index'))
 
     return render_template('login.html')
+    
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        nombre = request.form['nombre'].strip()
+        correo = request.form['correo'].strip()
+        usuario = request.form['usuario'].strip()
+        contrasena = request.form['contrasena'].strip()
 
+        # Validar si ya existe
+        usuarios = cargar_usuarios()
+        for u in usuarios:
+            if correo == u[1] or usuario == u[2]:
+                return render_template('register.html', error="Usuario o correo ya registrado.")
+
+        # Guardar nuevo usuario
+        with open('Login_and_register.csv', 'a', newline='', encoding='utf-8') as csvfile:
+            escritor = csv.writer(csvfile)
+            escritor.writerow([nombre, correo, usuario, contrasena])
+
+        return redirect(url_for('login'))
+
+    return render_template('register.html')
+    
 @app.route('/')
 def index():
     if 'usuario' not in session:
