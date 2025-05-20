@@ -12,22 +12,32 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 ALLOWED_EXTENSIONS = {'.zip', '.dcm'}
 
+# Ruta absoluta del CSV en la raíz del proyecto
+CSV_PATH = os.path.join(os.getcwd(), 'Login_and_register.csv')
+
 def allowed_file(filename):
     return os.path.splitext(filename)[1].lower() in ALLOWED_EXTENSIONS
 
 def cargar_usuarios():
     usuarios = []
-    with open('Login_and_register.csv', newline='', encoding='utf-8') as csvfile:
+    if not os.path.exists(CSV_PATH):
+        # Crear archivo CSV con encabezado si no existe
+        with open(CSV_PATH, 'w', newline='', encoding='utf-8') as csvfile:
+            escritor = csv.writer(csvfile)
+            escritor.writerow(['nombre', 'correo', 'usuario', 'contrasena'])
+        return usuarios
+
+    with open(CSV_PATH, newline='', encoding='utf-8') as csvfile:
         lector = csv.reader(csvfile)
         next(lector)  # saltar encabezado
         for fila in lector:
             usuarios.append(fila)  # [nombre, correo, usuario, contraseña]
     return usuarios
 
-# ✅ NUEVA RUTA PRINCIPAL DE BIENVENIDA
+# Página principal de bienvenida con opción a login o registro
 @app.route('/')
 def inicio():
-    return render_template('inicio.html')  # NUEVO TEMPLATE
+    return render_template('inicio.html')  # Página que ofrece elegir Login o Registro
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -49,7 +59,7 @@ def login():
 
         session['usuario'] = encontrado[2]
         session['nombre'] = encontrado[0]
-        return redirect(url_for('index'))  # va al panel (ruta renombrada más abajo)
+        return redirect(url_for('index'))  # Panel de usuario
 
     return render_template('login.html')
 
@@ -66,7 +76,8 @@ def register():
             if correo == u[1] or usuario == u[2]:
                 return render_template('register.html', error="Usuario o correo ya registrado.")
 
-        with open('Login_and_register.csv', 'a', newline='', encoding='utf-8') as csvfile:
+        # Añadir nuevo usuario al CSV en modo append
+        with open(CSV_PATH, 'a', newline='', encoding='utf-8') as csvfile:
             escritor = csv.writer(csvfile)
             escritor.writerow([nombre, correo, usuario, contrasena])
 
@@ -74,7 +85,7 @@ def register():
 
     return render_template('register.html')
 
-# ✅ RUTA CAMBIADA de '/' a '/panel' para evitar conflicto con la página principal
+# Ruta del panel del usuario con lista de archivos permitidos
 @app.route('/panel')
 def index():
     if 'usuario' not in session:
@@ -99,7 +110,7 @@ def upload_file():
         return 'Solo se permiten archivos .zip o .dcm'
 
     file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
-    return f'Archivo {file.filename} subido correctamente.<br><a href="/panel">Volver</a>'  # actualizado
+    return f'Archivo {file.filename} subido correctamente.<br><a href="/panel">Volver</a>'
 
 @app.route('/download')
 def download_file():
@@ -118,8 +129,8 @@ def download_file():
 @app.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for('inicio'))  # volver a la pantalla principal
+    return redirect(url_for('inicio'))  # Volver a la página principal
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))  # Render usa esta variable
+    port = int(os.environ.get('PORT', 5000))  # Usar puerto asignado o 5000 por defecto
     app.run(host='0.0.0.0', port=port, debug=True)
